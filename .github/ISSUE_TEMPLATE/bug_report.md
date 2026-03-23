@@ -12,9 +12,9 @@ Describe the problem in one or two sentences.
 
 ## Steps to reproduce
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Expected behavior
 

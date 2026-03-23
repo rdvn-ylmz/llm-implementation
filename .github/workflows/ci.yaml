@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install format and hook tooling
+        run: |
+          python -m pip install --upgrade pip pre-commit
+          sudo apt-get update
+          sudo apt-get install -y clang-format
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure
+
+build-and-test:
+  runs-on: ubuntu-latest
+  strategy:
+    fail-fast: false
+    matrix:
+      preset: [debug, asan, ubsan]
+
+  steps:
+    - uses: actions/checkout@v6
+
+    - name: Configure
+      run: cmake --preset ${{ matrix.preset }}
+
+    - name: Build
+      run: cmake --build --preset ${{ matrix.preset }}
+
+    - name: Test
+      run: ctest --preset ${{ matrix.preset }}

@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -13,10 +15,8 @@ concurrency:
 jobs:
   format:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -28,23 +28,23 @@ jobs:
           sudo apt-get install -y clang-format
 
       - name: Run pre-commit
-        run: pre-commit run --all-files --show-diff-on-failure
+        run: SKIP=no-commit-to-branch pre-commit run --all-files --show-diff-on-failure
 
-build-and-test:
-  runs-on: ubuntu-latest
-  strategy:
-    fail-fast: false
-    matrix:
-      preset: [debug, asan, ubsan]
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [debug, asan, ubsan]
 
-  steps:
-    - uses: actions/checkout@v6
+    steps:
+      - uses: actions/checkout@v6
 
-    - name: Configure
-      run: cmake --preset ${{ matrix.preset }}
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
 
-    - name: Build
-      run: cmake --build --preset ${{ matrix.preset }}
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
 
-    - name: Test
-      run: ctest --preset ${{ matrix.preset }}
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}

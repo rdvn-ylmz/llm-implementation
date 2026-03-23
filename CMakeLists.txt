@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(llm_implementation C)
+include(CTest)
+
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -21,3 +23,7 @@ target_compile_options(llm_implementation PRIVATE
       -Wextra
       -Wpedantic
 )
+
+if(BUILD_TESTING)
+      add_test(NAME llm_implementation_runs COMMAND llm_implementation)
+endif()
